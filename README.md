@@ -49,3 +49,16 @@ uvx coding-work-report --author "IVEN" --no-detail
 | `--author` | `-a` | 提交人 (name 或 email) | **必填** |
 | `--output` | `-o` | 保存 Markdown 报告的文件路径 | 输出到终端 |
 | `--detail` / `--no-detail` | 无 | 显示详细代码变更 | 开启 |
+
+## 发布
+
+推送 `main` 分支时，GitHub Actions 会自动构建并发布到 PyPI。
+
+### 配置 PyPI Token
+
+1. 在 GitHub 仓库设置 -> Secrets and variables -> Actions 中
+2. 添加 `New repository secret`
+3. Name: `PYPI_TOKEN`
+4. Secret: 你的 PyPI API token（以 `pypi-` 开头）
+
+获取 token: https://pypi.org/manage/account/#api-tokens

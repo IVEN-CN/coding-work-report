@@ -9,7 +9,7 @@
 无需安装，直接运行：
 
 ```bash
-uvx gen-work-report --author "你的名字"
+uvx coding-work-report --author "你的名字"
 ```
 
 ### 本地开发
@@ -22,19 +22,19 @@ uv sync
 
 ```bash
 # 扫描当前目录下所有仓库，查找当天指定作者的提交
-uvx gen-work-report --author "你的名字"
+uvx coding-work-report --author "你的名字"
 
 # 指定路径和日期
-uvx gen-work-report --path "E:\code" --author "IVEN" --date 2026-05-16
+uvx coding-work-report --path "E:\code" --author "IVEN" --date 2026-05-16
 
 # 保存为 Markdown 文件
-uvx gen-work-report --author "IVEN" --output report.md
+uvx coding-work-report --author "IVEN" --output report.md
 
 # 不显示代码 diff（仅提交信息）
-uvx gen-work-report --author "IVEN" --no-detail
+uvx coding-work-report --author "IVEN" --no-detail
 
 # 查看帮助
-uvx gen-work-report --help
+uvx coding-work-report --help
 ```
 
 ### 参数

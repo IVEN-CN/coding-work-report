@@ -71,6 +71,20 @@ def get_commit_detail(repo_path: str, hash_: str, detail: bool = True) -> dict:
     return {"hash": hash_, "message": message, "timestamp": timestamp, "patch": patch}
 
 
+def colorize_diff_line(line: str) -> str:
+    if line.startswith("+") and not line.startswith("+++"):
+        return click.style(line, fg="green")
+    if line.startswith("-") and not line.startswith("---"):
+        return click.style(line, fg="red")
+    if line.startswith("@@"):
+        return click.style(line, fg="cyan")
+    if line.startswith("diff --git") or line.startswith("index "):
+        return click.style(line, fg="bright_black")
+    if line.startswith("--- ") or line.startswith("+++ "):
+        return click.style(line, fg="bright_black")
+    return line
+
+
 @click.command()
 @click.option("--path", "-p", default=".", help="扫描路径")
 @click.option(
@@ -136,7 +150,10 @@ def main(path: str, date: str, author: str, output: str | None, detail: bool) ->
                 lines.append("")
                 lines.append("```diff")
                 for patch_line in c["patch"].splitlines():
-                    lines.append(patch_line)
+                    if output:
+                        lines.append(patch_line)
+                    else:
+                        lines.append(colorize_diff_line(patch_line))
                 lines.append("```")
                 lines.append("")
 

@@ -38,7 +38,7 @@ def get_commit_hashes(repo_path: str, author: str, target_date: datetime.date) -
     return [h.strip() for h in result.stdout.strip().splitlines() if h.strip()]
 
 
-def get_commit_detail(repo_path: str, hash_: str) -> dict:
+def get_commit_detail(repo_path: str, hash_: str, detail: bool = True) -> dict:
     msg_result = subprocess.run(
         ["git", "-C", repo_path, "log", "-1", "--format=%B", hash_],
         capture_output=True,
@@ -57,14 +57,16 @@ def get_commit_detail(repo_path: str, hash_: str) -> dict:
     )
     timestamp = ts_result.stdout.strip()
 
-    patch_result = subprocess.run(
-        ["git", "-C", repo_path, "show", "-p", "--format=", hash_],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
-    patch = patch_result.stdout.strip()
+    patch = ""
+    if detail:
+        patch_result = subprocess.run(
+            ["git", "-C", repo_path, "show", "-p", "--format=", hash_],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        patch = patch_result.stdout.strip()
 
     return {"hash": hash_, "message": message, "timestamp": timestamp, "patch": patch}
 
@@ -82,7 +84,12 @@ def get_commit_detail(repo_path: str, hash_: str) -> dict:
     default=None,
     help="保存 Markdown 报告的文件路径",
 )
-def main(path: str, date: str, author: str, output: str | None) -> None:
+@click.option(
+    "--detail/--no-detail",
+    default=True,
+    help="显示详细代码变更 (默认开启)",
+)
+def main(path: str, date: str, author: str, output: str | None, detail: bool) -> None:
     target_date = datetime.date.fromisoformat(date)
     repos = find_git_repos(path)
 
@@ -110,7 +117,7 @@ def main(path: str, date: str, author: str, output: str | None) -> None:
         lines.append("")
 
         for hash_ in hashes:
-            c = get_commit_detail(repo, hash_)
+            c = get_commit_detail(repo, hash_, detail=detail)
             first_line = c["message"].splitlines()[0] if c["message"] else ""
             lines.append(f"### `{c['hash'][:8]}` {first_line}")
             lines.append("")

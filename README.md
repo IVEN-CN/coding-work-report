@@ -32,3 +32,4 @@ uv run gen-work-report --help
 | `--date` | `-d` | 指定日期 (YYYY-MM-DD) | 当天 |
 | `--author` | `-a` | 提交人 (name 或 email) | **必填** |
 | `--output` | `-o` | 保存 Markdown 报告的文件路径 | 输出到终端 |
+| `--detail` / `--no-detail` | 无 | 显示详细代码变更 | 开启 |

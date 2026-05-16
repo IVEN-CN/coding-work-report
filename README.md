@@ -52,7 +52,20 @@ uvx coding-work-report --author "IVEN" --no-detail
 
 ## 发布
 
-推送 `main` 分支时，GitHub Actions 会自动构建并发布到 PyPI。
+推送 git tag 时，GitHub Actions 会自动构建并发布到 PyPI。
+
+### 发布流程
+
+```bash
+# 1. 确保代码已 push 到 main
+git push origin main
+
+# 2. 打 tag（版本号与 tag 一致）
+git tag v0.1.2
+
+# 3. 推送 tag，触发自动发布
+git push origin v0.1.2
+```
 
 ### 配置 PyPI Token
 

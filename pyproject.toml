@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "generate-work-report"
+version = "0.1.0"
+description = "扫描指定路径下所有 Git 仓库在指定日期指定提交人的所有提交"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["click>=8.0"]
+
+[project.scripts]
+gen-work-report = "main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

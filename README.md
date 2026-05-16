@@ -1,8 +1,18 @@
-# generate-work-report
+# coding-work-report
 
 扫描指定路径下的所有 Git 仓库，列出指定提交人在指定日期的所有提交。
 
 ## 安装
+
+### 通过 uvx 直接运行（推荐）
+
+无需安装，直接运行：
+
+```bash
+uvx gen-work-report --author "你的名字"
+```
+
+### 本地开发
 
 ```bash
 uv sync
@@ -12,16 +22,19 @@ uv sync
 
 ```bash
 # 扫描当前目录下所有仓库，查找当天指定作者的提交
-uv run gen-work-report --author "你的名字"
+uvx gen-work-report --author "你的名字"
 
 # 指定路径和日期
-uv run gen-work-report --path "E:\code" --author "IVEN" --date 2026-05-16
+uvx gen-work-report --path "E:\code" --author "IVEN" --date 2026-05-16
 
 # 保存为 Markdown 文件
-uv run gen-work-report --author "IVEN" --output report.md
+uvx gen-work-report --author "IVEN" --output report.md
+
+# 不显示代码 diff（仅提交信息）
+uvx gen-work-report --author "IVEN" --no-detail
 
 # 查看帮助
-uv run gen-work-report --help
+uvx gen-work-report --help
 ```
 
 ### 参数

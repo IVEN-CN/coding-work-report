@@ -14,7 +14,7 @@ def find_git_repos(root: str) -> list[str]:
     return repos
 
 
-def get_commits(repo_path: str, author: str, target_date: datetime.date) -> list[dict]:
+def get_commit_hashes(repo_path: str, author: str, target_date: datetime.date) -> list[str]:
     since = target_date.strftime("%Y-%m-%d 00:00:00")
     until = target_date.strftime("%Y-%m-%d 23:59:59")
 
@@ -27,7 +27,7 @@ def get_commits(repo_path: str, author: str, target_date: datetime.date) -> list
             f"--since={since}",
             f"--until={until}",
             f"--author={author}",
-            "--pretty=format:%H|%s|%ci",
+            "--pretty=format:%H",
             "--no-merges",
         ],
         capture_output=True,
@@ -35,14 +35,38 @@ def get_commits(repo_path: str, author: str, target_date: datetime.date) -> list
         encoding="utf-8",
         errors="replace",
     )
+    return [h.strip() for h in result.stdout.strip().splitlines() if h.strip()]
 
-    commits = []
-    for line in result.stdout.strip().splitlines():
-        if "|" not in line:
-            continue
-        hash_, subject, timestamp = line.split("|", 2)
-        commits.append({"hash": hash_, "subject": subject, "timestamp": timestamp})
-    return commits
+
+def get_commit_detail(repo_path: str, hash_: str) -> dict:
+    msg_result = subprocess.run(
+        ["git", "-C", repo_path, "log", "-1", "--format=%B", hash_],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    message = msg_result.stdout.strip()
+
+    ts_result = subprocess.run(
+        ["git", "-C", repo_path, "log", "-1", "--format=%ci", hash_],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    timestamp = ts_result.stdout.strip()
+
+    stat_result = subprocess.run(
+        ["git", "-C", repo_path, "show", "--stat", "--format=", hash_],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    stat = stat_result.stdout.strip()
+
+    return {"hash": hash_, "message": message, "timestamp": timestamp, "stat": stat}
 
 
 @click.command()
@@ -63,14 +87,22 @@ def main(path: str, date: str, author: str) -> None:
 
     found_any = False
     for repo in repos:
-        commits = get_commits(repo, author, target_date)
-        if not commits:
+        hashes = get_commit_hashes(repo, author, target_date)
+        if not hashes:
             continue
 
         found_any = True
         click.echo(f"\n[仓库] {repo}")
-        for c in commits:
-            click.echo(f"  {c['hash'][:8]}  {c['subject']}  ({c['timestamp']})")
+        for hash_ in hashes:
+            c = get_commit_detail(repo, hash_)
+            click.echo(f"\n  [{c['hash'][:8]}]  {c['timestamp']}")
+            if c["message"]:
+                for line in c["message"].splitlines():
+                    click.echo(f"  {line}")
+            if c["stat"]:
+                click.echo("\n  变更:")
+                for line in c["stat"].splitlines():
+                    click.echo(f"    {line}")
 
     if not found_any:
         click.echo(f"\n未找到 {author} 在 {target_date} 的提交。")

@@ -17,6 +17,9 @@ uv run gen-work-report --author "你的名字"
 # 指定路径和日期
 uv run gen-work-report --path "E:\code" --author "IVEN" --date 2026-05-16
 
+# 保存为 Markdown 文件
+uv run gen-work-report --author "IVEN" --output report.md
+
 # 查看帮助
 uv run gen-work-report --help
 ```
@@ -28,3 +31,4 @@ uv run gen-work-report --help
 | `--path` | `-p` | 扫描路径 | `.` (当前目录) |
 | `--date` | `-d` | 指定日期 (YYYY-MM-DD) | 当天 |
 | `--author` | `-a` | 提交人 (name 或 email) | **必填** |
+| `--output` | `-o` | 保存 Markdown 报告的文件路径 | 输出到终端 |

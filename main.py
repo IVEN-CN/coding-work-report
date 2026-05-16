@@ -77,13 +77,25 @@ def get_commit_detail(repo_path: str, hash_: str) -> dict:
     help="指定日期 (YYYY-MM-DD，默认当天)",
 )
 @click.option("--author", "-a", required=True, help="提交人 (name 或 email)")
-def main(path: str, date: str, author: str) -> None:
+@click.option(
+    "--output", "-o",
+    default=None,
+    help="保存 Markdown 报告的文件路径",
+)
+def main(path: str, date: str, author: str, output: str | None) -> None:
     target_date = datetime.date.fromisoformat(date)
     repos = find_git_repos(path)
 
     if not repos:
         click.echo("未找到任何 Git 仓库。", err=True)
         return
+
+    lines: list[str] = []
+    lines.append("# 工作报告")
+    lines.append("")
+    lines.append(f"> **日期:** {target_date}")
+    lines.append(f"> **作者:** {author}")
+    lines.append("")
 
     found_any = False
     for repo in repos:
@@ -92,20 +104,46 @@ def main(path: str, date: str, author: str) -> None:
             continue
 
         found_any = True
-        click.echo(f"\n[仓库] {repo}")
+        lines.append("---")
+        lines.append("")
+        lines.append(f"## 仓库: `{repo}`")
+        lines.append("")
+
         for hash_ in hashes:
             c = get_commit_detail(repo, hash_)
-            click.echo(f"\n  [{c['hash'][:8]}]  {c['timestamp']}")
+            first_line = c["message"].splitlines()[0] if c["message"] else ""
+            lines.append(f"### `{c['hash'][:8]}` {first_line}")
+            lines.append("")
+            lines.append(f"- **时间:** {c['timestamp']}")
+            lines.append("")
+
             if c["message"]:
-                for line in c["message"].splitlines():
-                    click.echo(f"  {line}")
+                lines.append("**提交信息:**")
+                lines.append("")
+                for msg_line in c["message"].splitlines():
+                    lines.append(msg_line)
+                lines.append("")
+
             if c["patch"]:
-                click.echo("")
-                for line in c["patch"].splitlines():
-                    click.echo(f"  {line}")
+                lines.append("**代码变更:**")
+                lines.append("")
+                lines.append("```diff")
+                for patch_line in c["patch"].splitlines():
+                    lines.append(patch_line)
+                lines.append("```")
+                lines.append("")
 
     if not found_any:
-        click.echo(f"\n未找到 {author} 在 {target_date} 的提交。")
+        lines.append(f"未找到 {author} 在 {target_date} 的提交。")
+
+    report = "\n".join(lines)
+
+    if output:
+        with open(output, "w", encoding="utf-8") as f:
+            f.write(report)
+        click.echo(f"报告已保存至: {output}")
+    else:
+        click.echo(report)
 
 
 if __name__ == "__main__":

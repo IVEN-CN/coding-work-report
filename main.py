@@ -57,16 +57,16 @@ def get_commit_detail(repo_path: str, hash_: str) -> dict:
     )
     timestamp = ts_result.stdout.strip()
 
-    stat_result = subprocess.run(
-        ["git", "-C", repo_path, "show", "--stat", "--format=", hash_],
+    patch_result = subprocess.run(
+        ["git", "-C", repo_path, "show", "-p", "--format=", hash_],
         capture_output=True,
         text=True,
         encoding="utf-8",
         errors="replace",
     )
-    stat = stat_result.stdout.strip()
+    patch = patch_result.stdout.strip()
 
-    return {"hash": hash_, "message": message, "timestamp": timestamp, "stat": stat}
+    return {"hash": hash_, "message": message, "timestamp": timestamp, "patch": patch}
 
 
 @click.command()
@@ -99,10 +99,10 @@ def main(path: str, date: str, author: str) -> None:
             if c["message"]:
                 for line in c["message"].splitlines():
                     click.echo(f"  {line}")
-            if c["stat"]:
-                click.echo("\n  变更:")
-                for line in c["stat"].splitlines():
-                    click.echo(f"    {line}")
+            if c["patch"]:
+                click.echo("")
+                for line in c["patch"].splitlines():
+                    click.echo(f"  {line}")
 
     if not found_any:
         click.echo(f"\n未找到 {author} 在 {target_date} 的提交。")

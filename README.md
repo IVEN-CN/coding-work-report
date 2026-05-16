@@ -6,23 +6,29 @@
 
 ### 通过 uvx 直接运行（推荐）
 
-无需安装，直接运行：
+无需安装：
 
 ```bash
-uvx coding-work-report --author "你的名字"
+uvx coding-work-report --help
 ```
+
+> 如果国内 PyPI 镜像未同步最新版本，可强制走官方源：
+> ```bash
+> uvx --index-url https://pypi.org/simple coding-work-report --help
+> ```
 
 ### 本地开发
 
 ```bash
 uv sync
+uv run generate_work_report/cli.py --help
 ```
 
 ## 使用
 
 ```bash
 # 扫描当前目录下所有仓库，查找当天指定作者的提交
-uvx coding-work-report --author "你的名字"
+uvx coding-work-report --author "IVEN"
 
 # 指定路径和日期
 uvx coding-work-report --path "E:\code" --author "IVEN" --date 2026-05-16
@@ -32,9 +38,6 @@ uvx coding-work-report --author "IVEN" --output report.md
 
 # 不显示代码 diff（仅提交信息）
 uvx coding-work-report --author "IVEN" --no-detail
-
-# 查看帮助
-uvx coding-work-report --help
 ```
 
 ### 参数
